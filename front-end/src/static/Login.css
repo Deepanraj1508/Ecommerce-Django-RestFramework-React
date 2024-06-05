@@ -1,0 +1,73 @@
+
+.loginContainer {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 50px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.loginContainer h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.loginContainer form {
+  display: flex;
+  flex-direction: column;
+}
+
+.loginContainer form div {
+  margin-bottom: 10px;
+}
+
+.loginContainer form label {
+  font-weight: bold;
+}
+
+.loginContainer form input[type="email"],
+.loginContainer form input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.loginContainer form button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.loginContainer form button:hover {
+  background-color: #0056b3;
+}
+
+.inputButton {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.inputButton:hover {
+  background-color: #495057;
+}
+
+.errorMessage {
+  color: red;
+}
