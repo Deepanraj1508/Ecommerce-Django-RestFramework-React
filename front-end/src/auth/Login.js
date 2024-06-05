@@ -18,7 +18,7 @@ const Login = () => {
       // Save the JWT token in the browser cookies
       document.cookie = `jwt=${response.data.jwt}; path=/; httponly`;
       // Redirect to the home page
-      window.location.href = '/index';
+      window.location.href = '/home';
       console.log('Login successful:', response.data);
     } catch (error) {
       setError('Login failed: ' + error.response.data.detail);
