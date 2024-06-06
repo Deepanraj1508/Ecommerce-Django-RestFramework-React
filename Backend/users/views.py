@@ -1,7 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from .serializers import UserSerializers
+from rest_framework import status
+from django.core.mail import send_mail
+from django.conf import settings
+from .serializers import UserSerializers,ContactSerializer
 from .models import User
 import jwt
 from datetime import datetime, timezone, timedelta
@@ -71,3 +74,27 @@ class LogoutView(APIView):
              "message" : 'Success'
          }
          return response
+    
+class ContactView(APIView):
+    def post(self, request):
+        serializer = ContactSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        name = serializer.validated_data['name']
+        email = serializer.validated_data['email']
+        message = serializer.validated_data['message']
+
+        try:
+            send_mail(
+                subject=f"New Contact Message from {name}",
+                message=f"Name: {name}\nEmail: {email}\nMessage: {message}",
+                from_email= email,
+                recipient_list= [email],
+                fail_silently=False,
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            # Log the exception (use your logging setup)
+            print(f"Error sending email: {e}")
+            return Response({'detail': 'Message saved, but email sending failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

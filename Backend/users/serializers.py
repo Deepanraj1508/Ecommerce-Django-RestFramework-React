@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User,Contact
 
 class UserSerializers(serializers.ModelSerializer):
     class Meta:
@@ -16,3 +16,14 @@ class UserSerializers(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['name', 'email', 'message']
+
+    def validate_email(self, value):
+        if '@' not in value:
+            raise serializers.ValidationError("Invalid email address")
+        return value
