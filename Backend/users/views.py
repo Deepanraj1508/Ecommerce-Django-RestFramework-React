@@ -8,7 +8,7 @@ from .serializers import UserSerializers,ContactSerializer
 from .models import User
 import jwt
 from datetime import datetime, timezone, timedelta
-
+import logging
 
 class RegisterView(APIView):
     def post(self, request):
@@ -75,6 +75,9 @@ class LogoutView(APIView):
          }
          return response
     
+
+logger = logging.getLogger(__name__)
+
 class ContactView(APIView):
     def post(self, request):
         serializer = ContactSerializer(data=request.data)
@@ -86,15 +89,25 @@ class ContactView(APIView):
         message = serializer.validated_data['message']
 
         try:
+            # Send email to predefined email address
             send_mail(
                 subject=f"New Contact Message from {name}",
                 message=f"Name: {name}\nEmail: {email}\nMessage: {message}",
-                from_email= email,
-                recipient_list= [email],
+                from_email=email,
+                recipient_list=[settings.EMAIL_HOST_USER],
                 fail_silently=False,
             )
+
+            # Send automatic response to the user
+            send_mail(
+                subject="Thank you for contacting us",
+                message=f"Dear {name},\n\nThank you for reaching out to us. We have received your message and will get back to you shortly.\n\nBest regards,\nShopHub.Pvt.Ltd,\nKarur,\nTamilNadu.",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            # Log the exception (use your logging setup)
-            print(f"Error sending email: {e}")
+            logger.error(f"Error sending email: {e}")
             return Response({'detail': 'Message saved, but email sending failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

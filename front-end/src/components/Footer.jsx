@@ -12,16 +12,6 @@ const Footer = () => {
             <a className="text-dark fs-4" href="https://github.com/ssahibsingh" target="_blank" rel="noreferrer">
               <i className="fa fa-github"></i>
             </a>
-            {/* Add other social media icons similarly */}
-            <a className="text-dark fs-4" href="URL_TO_YOUR_SOCIAL_MEDIA_PROFILE" target="_blank" rel="noreferrer">
-              <i className="fa fa-instagram"></i> {/* Example for Facebook */}
-            </a>
-            <a className="text-dark fs-4" href="URL_TO_YOUR_SOCIAL_MEDIA_PROFILE" target="_blank" rel="noreferrer">
-              <i className="fa fa-whatsapp"></i> {/* Example for Facebook */}
-            </a>
-            <a className="text-dark fs-4" href="URL_TO_YOUR_SOCIAL_MEDIA_PROFILE" target="_blank" rel="noreferrer">
-              <i className="fa fa-linkedin"></i> {/* Example for Facebook */}
-            </a>
           </div>
         </div>
       </footer>

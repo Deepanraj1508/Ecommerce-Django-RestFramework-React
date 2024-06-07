@@ -15,6 +15,9 @@ const ContactPage = () => {
     message: "",
   });
 
+  const [loading, setLoading] = useState(false); // Loader state
+  const [controller, setController] = useState(null); // AbortController state
+
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevState) => ({
@@ -25,8 +28,14 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const abortController = new AbortController();
+    setController(abortController);
+    setLoading(true); // Show loader
+
     try {
-      await axios.post("http://localhost:8000/api/contact", formData); // Update this URL with your backend endpoint
+      await axios.post("http://localhost:8000/api/contact", formData, {
+        signal: abortController.signal,
+      }); // Update this URL with your backend endpoint
       setFormStatus({
         submitted: true,
         success: true,
@@ -38,12 +47,31 @@ const ContactPage = () => {
         message: "",
       });
     } catch (error) {
-      console.error("There was an error sending your message:", error.response?.data);
-      setFormStatus({
-        submitted: true,
-        success: false,
-        message: error.response?.data?.detail || "There was an error sending your message. Please try again.",
-      });
+      if (axios.isCancel(error)) {
+        console.log("Request canceled:", error.message);
+        setFormStatus({
+          submitted: true,
+          success: false,
+          message: "Message sending canceled.",
+        });
+      } else {
+        console.error("There was an error sending your message:", error.response?.data);
+        setFormStatus({
+          submitted: true,
+          success: false,
+          message: error.response?.data?.detail || "There was an error sending your message. Please try again.",
+        });
+      }
+    } finally {
+      setLoading(false); // Hide loader
+      setController(null);
+    }
+  };
+
+  const handleCancel = () => {
+    if (controller) {
+      controller.abort();
+      setLoading(false); // Hide loader
     }
   };
 
@@ -65,52 +93,67 @@ const ContactPage = () => {
                 {formStatus.message}
               </div>
             )}
-            <form onSubmit={handleSubmit}>
-              <div className="form-group my-3">
-                <label htmlFor="name">Name</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Enter your name"
-                  required
-                />
-              </div>
-              <div className="form-group my-3">
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  id="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="name@example.com"
-                  required
-                />
-              </div>
-              <div className="form-group my-3">
-                <label htmlFor="message">Message</label>
-                <textarea
-                  rows={5}
-                  className="form-control"
-                  id="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Enter your message"
-                  required
-                />
-              </div>
-              <div className="text-center">
+            {loading && (
+              <div className="d-flex flex-column align-items-center my-3">
+                <div className="spinner-border" role="status">
+                  <span className="sr-only">Loading...</span>
+                </div>
                 <button
-                  className="my-2 px-4 mx-auto btn btn-dark"
-                  type="submit"
+                  className="btn btn-danger mt-3"
+                  onClick={handleCancel}
                 >
-                  Send
+                  Cancel
                 </button>
               </div>
-            </form>
+            )}
+            {!loading && (
+              <form onSubmit={handleSubmit}>
+                <div className="form-group my-3">
+                  <label htmlFor="name">Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+                <div className="form-group my-3">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="name@example.com"
+                    required
+                  />
+                </div>
+                <div className="form-group my-3">
+                  <label htmlFor="message">Message</label>
+                  <textarea
+                    rows={5}
+                    className="form-control"
+                    id="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Enter your message"
+                    required
+                  />
+                </div>
+                <div className="text-center">
+                  <button
+                    className="my-2 px-4 mx-auto btn btn-dark"
+                    type="submit"
+                  >
+                    Send
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>
