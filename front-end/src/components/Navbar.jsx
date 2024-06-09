@@ -4,22 +4,30 @@ import { useSelector } from 'react-redux';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
-    const state = useSelector(state => state.handleCart);
+    const cartItems = useSelector(state => state.handleCart);
 
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light py-3 sticky-top">
             <div className="container">
-                <NavLink className="navbar-brand fw-bold fs-4 px-2" to="/">
+                <NavLink className="navbar-brand fw-bold fs-4" to="/">
                     <img src={logo} alt="Logo" style={{ height: '60px' }} />
                 </NavLink>
-                <button className="navbar-toggler mx-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <button 
+                    className="navbar-toggler" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#navbarSupportedContent" 
+                    aria-controls="navbarSupportedContent" 
+                    aria-expanded="false" 
+                    aria-label="Toggle navigation"
+                >
                     <span className="navbar-toggler-icon"></span>
                 </button>
 
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul className="navbar-nav m-auto my-2 text-center">
+                    <ul className="navbar-nav mx-auto mb-2 mb-lg-0 text-center">
                         <li className="nav-item">
-                            <NavLink className="nav-link" to="/">Home</NavLink>
+                            <NavLink className="nav-link" exact to="/">Home</NavLink>
                         </li>
                         <li className="nav-item">
                             <NavLink className="nav-link" to="/product">Products</NavLink>
@@ -30,16 +38,13 @@ const Navbar = () => {
                         <li className="nav-item">
                             <NavLink className="nav-link" to="/contact">Contact</NavLink>
                         </li>
+                        <li className="nav-item">
+                            <NavLink className="nav-link" to="/login">Login</NavLink>
+                        </li>
                     </ul>
-                    <div className="buttons text-center">
-                        <NavLink to="/login" className="btn btn-outline-dark m-2">
-                            <i className="fa fa-sign-in-alt mr-1"></i> Login
-                        </NavLink>
-                        <NavLink to="/register" className="btn btn-outline-dark m-2">
-                            <i className="fa fa-user-plus mr-1"></i> Register
-                        </NavLink>
-                        <NavLink to="/cart" className="btn btn-outline-dark m-2">
-                            <i className="fa fa-cart-shopping mr-1"></i> Cart ({state.length})
+                    <div className="d-flex text-center">
+                        <NavLink to="/cart" className="btn btn-outline-dark mx-2">
+                            <i className="fa fa-shopping-cart me-1"></i> Cart ({cartItems.length})
                         </NavLink>
                     </div>
                 </div>

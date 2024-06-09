@@ -102,3 +102,12 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Ignore env folder
+env/
+
+# Ignore compiled Python files
+*.cpython-310.pyc
+
+# Migrations directory
+migrations
