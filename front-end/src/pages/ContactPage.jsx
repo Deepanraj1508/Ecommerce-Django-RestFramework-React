@@ -81,6 +81,7 @@ const ContactPage = () => {
       <div className="container my-3 py-3">
         <h1 className="text-center">Contact Us</h1>
         <hr />
+        
         <div className="row my-4 h-100">
           <div className="col-md-4 col-lg-4 col-sm-8 mx-auto">
             {formStatus.submitted && (
@@ -152,9 +153,14 @@ const ContactPage = () => {
                     Send
                   </button>
                 </div>
+                
               </form>
+              
             )}
           </div>
+          <p className="text-center">
+          Have a question or need assistance? We're here to help! Contact our customer support team at [Phone Number] or email us at [Email Address].
+        </p>
         </div>
       </div>
       <Footer />
