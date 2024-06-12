@@ -1,4 +1,3 @@
-// Register.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Footer, Navbar } from "../components";
@@ -6,7 +5,9 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
-import '../static/Login.css'; // Import your custom CSS file for styling
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import '../static/Login.css';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ const Register = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+
     const { name, email, password, phone_number } = formData;
 
     const onChange = (e) => {
@@ -27,6 +29,10 @@ const Register = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        if (!phone_number) { // Check if phone number is empty
+            setError('Please enter your phone number.');
+            return;
+        }
         try {
             await axios.post('http://localhost:8000/api/register', formData);
             setSuccess('Registration successful!');
@@ -84,17 +90,18 @@ const Register = () => {
                                         required
                                     />
                                 </div>
-
                                 <div className="mb-3">
                                     <label htmlFor="PhoneNumber">Phone Number</label>
-                                    <input
-                                        type="text"
+                                    <PhoneInput
+                                        international
+                                        countryCallingCodeEditable={false}
+                                        defaultCountry="IN"
+                                        value={phone_number}
+                                        onChange={(value) => setFormData({ ...formData, phone_number: value })}
                                         className="form-control input-field"
                                         id="PhoneNumber"
                                         name="phone_number"
                                         placeholder="Enter Your Phone Number"
-                                        value={phone_number}
-                                        onChange={onChange}
                                         required
                                     />
                                 </div>
@@ -108,7 +115,7 @@ const Register = () => {
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         className="form-control"
-                                        id="password"
+                                        id="Password"
                                         placeholder="Enter your password"
                                         name="password"
                                         value={password}
@@ -116,7 +123,7 @@ const Register = () => {
                                         required
                                     />
                                 </div>
-                                
+
                                 <div className="text-center">
                                     <div className="d-grid gap-2">
                                         <button className="btn btn-primary btn-login" type="submit">SignUp</button>
