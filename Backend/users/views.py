@@ -16,9 +16,8 @@ from .models import User
 import jwt
 import logging
 
-
-
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 class RegisterView(APIView):
     def post(self, request):
@@ -86,24 +85,6 @@ class SetNewPasswordView(APIView):
             return Response({'message': 'Password has been reset.'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-    permission_classes = [AllowAny]
-
-    def post(self, request, uid, token, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=uid)
-        except User.DoesNotExist:
-            return Response({'error': 'Invalid user.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if not default_token_generator.check_token(user, token):
-            return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = SetNewPasswordSerializer(data=request.data)
-        if serializer.is_valid():
-            user.set_password(serializer.validated_data['new_password'])
-            user.save()
-            return Response({'message': 'Password has been reset.'}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -161,10 +142,7 @@ class LogoutView(APIView):
              "message" : 'Success'
          }
          return response
-    
-
-logger = logging.getLogger(__name__)
-
+     
 class ContactView(APIView):
     def post(self, request):
         serializer = ContactSerializer(data=request.data)
