@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
-from rest_framework import status
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from .email_utils import send_registration_email
@@ -13,6 +13,7 @@ from datetime import datetime, timezone, timedelta
 from django.utils import timezone
 from .serializers import *
 from .models import User
+from twilio.rest import Client
 import jwt
 import logging
 
@@ -110,7 +111,69 @@ class LoginView(APIView):
         response.set_cookie(key='jwt', value=token, httponly=True)
         
         return response
+class RequestOTPView(generics.GenericAPIView):
+    serializer_class = PasswordResetSerializer
 
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        phone_number = serializer.validated_data['phone_number']
+        user = User.objects.get(phone_number=phone_number)
+        otp_entry, created = PhoneOTP.objects.get_or_create(user=user)
+        otp_entry.generate_otp()
+        self.send_otp_via_sms(phone_number, otp_entry.otp)
+        return Response({"detail": "OTP sent successfully"}, status=status.HTTP_200_OK)
+
+    def send_otp_via_sms(self, phone_number, otp):
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+        message = client.messages.create(
+            body=f'Your OTP is {otp}',
+            from_=settings.TWILIO_PHONE_NUMBER,
+            to=phone_number
+        )
+
+class SetNewPasswordView(generics.GenericAPIView):
+    serializer_class = SetNewPasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        new_password = serializer.validated_data['new_password']
+        user = request.user
+        user.set_password(new_password)
+        user.save()
+        return Response({"detail": "Password has been reset successfully"}, status=status.HTTP_200_OK)
+
+class VerifyOTPView(generics.GenericAPIView):
+    serializer_class = VerifyOTPSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone_number = serializer.validated_data['phone_number']
+        otp = serializer.validated_data['otp']
+
+        try:
+            user = User.objects.get(phone_number=phone_number)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Retrieve the PhoneOTP instance
+        otp_entry = PhoneOTP.objects.filter(phone_number=phone_number, otp=otp, is_verified=False).first()
+
+        if not otp_entry:
+            return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Validate OTP expiry if needed
+        if otp_entry.timestamp < timezone.now() - timedelta(minutes=5):  # Assuming OTP expires after 5 minutes
+            return Response({"error": "OTP expired. Please request a new OTP."}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Mark OTP as verified
+        otp_entry.is_verified = True
+        otp_entry.save()
+
+        return Response({"detail": "OTP verified successfully"}, status=status.HTTP_200_OK)
 
 class UserView(APIView):
     
