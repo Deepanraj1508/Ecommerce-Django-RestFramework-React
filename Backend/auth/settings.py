@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_rest_passwordreset',
     'rest_framework.authtoken',
     'users.apps.UsersConfig',
     'corsheaders',
@@ -156,3 +155,6 @@ EMAIL_USE_TLS = True
 
 
 FRONTEND_URL = 'http://localhost:3000'
+
+
+
