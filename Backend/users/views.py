@@ -44,12 +44,10 @@ class PasswordResetRequestView(APIView):
                 user = User.objects.get(email=serializer.validated_data['email'])
                 token = default_token_generator.make_token(user)
                 reset_url = f"{settings.FRONTEND_URL}/reset-password/{user.pk}/{token}/"
-
                 # Add expiration time (10 minutes from now)
                 expiration_time = timezone.now() + timedelta(minutes=10)
                 user.password_reset_token_created_at = expiration_time
                 user.save()
-
                 # Mention expiration time in the email content
                 reset_link_with_expiry = f'{reset_url} (valid for 10 minutes)'
                 send_mail(
