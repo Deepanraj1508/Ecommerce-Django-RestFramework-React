@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os 
+import configparser
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -158,3 +159,15 @@ FRONTEND_URL = 'http://localhost:3000'
 
 
 
+import configparser
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config_file = os.path.join(BASE_DIR, 'config.ini')
+
+config = configparser.ConfigParser()
+config.read(config_file)
+
+TWILIO_ACCOUNT_SID = config.get('twilio', 'account_sid')
+TWILIO_AUTH_TOKEN = config.get('twilio', 'auth_token')
+TWILIO_PHONE_NUMBER = config.get('twilio', 'phone_number')

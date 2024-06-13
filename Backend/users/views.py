@@ -18,7 +18,7 @@ import logging
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
-
+client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 #Registration
 class RegisterView(APIView):
     def post(self, request):
@@ -44,10 +44,12 @@ class PasswordResetRequestView(APIView):
                 user = User.objects.get(email=serializer.validated_data['email'])
                 token = default_token_generator.make_token(user)
                 reset_url = f"{settings.FRONTEND_URL}/reset-password/{user.pk}/{token}/"
+                
                 # Add expiration time (10 minutes from now)
-                expiration_time = timezone.now() + timedelta(minutes=10)
+                expiration_time = timezone.now() + timezone.timedelta(minutes=10)
                 user.password_reset_token_created_at = expiration_time
                 user.save()
+
                 # Mention expiration time in the email content
                 reset_link_with_expiry = f'{reset_url} (valid for 10 minutes)'
                 send_mail(
@@ -60,31 +62,43 @@ class PasswordResetRequestView(APIView):
             except User.DoesNotExist:
                 return Response({'error': 'User with this email does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
+    
 class SetNewPasswordView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, uid, token, *args, **kwargs):
+        logger.debug(f"Received POST request for password reset. uid: {uid}, token: {token}")
+
         try:
             user = User.objects.get(pk=uid)
         except User.DoesNotExist:
+            logger.error(f"User with ID {uid} does not exist.")
             return Response({'error': 'Invalid user.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if token is valid and not expired
         if not default_token_generator.check_token(user, token):
-            return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
+            logger.error(f"Invalid token for user ID {uid}.")
+            return Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if token is expired
+        if not user.password_reset_token_created_at:
+            logger.error(f"password_reset_token_created_at is None for user ID {uid}.")
+            return Response({'error': 'Password reset token creation time not set.'}, status=status.HTTP_400_BAD_REQUEST)
+
         if user.password_reset_token_created_at < timezone.now():
+            logger.error(f"Token has expired for user ID {uid}.")
             return Response({'error': 'Token has expired.'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = SetNewPasswordSerializer(data=request.data)
         if serializer.is_valid():
             user.set_password(serializer.validated_data['new_password'])
+            user.password_reset_token_created_at = None  # Reset token creation time after use
             user.save()
+            logger.info(f"Password reset successful for user ID {uid}.")
             return Response({'message': 'Password has been reset.'}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        else:
+            logger.error(f"Invalid serializer data for user ID {uid}: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 #User Login 
 class LoginView(APIView):
     def post(self, request):
@@ -111,8 +125,6 @@ class LoginView(APIView):
         response.set_cookie(key='jwt', value=token, httponly=True)
         
         return response
-class RequestOTPView(generics.GenericAPIView):
-    serializer_class = PasswordResetSerializer
 
 #phone otp
 class RequestOTPView(generics.GenericAPIView):

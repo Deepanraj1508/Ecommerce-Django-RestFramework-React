@@ -75,8 +75,10 @@ env/
 *.cpython-310.pyc
 
 # Migrations directory
-migrationspath/to/secret/file
+migrations
 .env
 
+#config file remove
+config.ini
 
-settings.py
+

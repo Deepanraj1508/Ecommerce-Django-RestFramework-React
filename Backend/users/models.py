@@ -7,6 +7,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
+    password_reset_token_created_at = models.DateTimeField(blank=True, null=True)
     phone_number = models.CharField(max_length=30, unique=True, blank=True, null=True)
     username = None
     
