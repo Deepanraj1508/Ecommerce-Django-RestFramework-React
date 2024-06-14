@@ -38,10 +38,14 @@ const Register = () => {
             setSuccess('Registration successful!');
             setError('');
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/verify-otp';
             }, 2000);
         } catch (err) {
-            setError('Registration failed. Please try again.');
+            if (err.response && err.response.data && err.response.data.error) {
+                alert(err.response.data.error); // Set error message from backend
+            } else {
+                setError('Registration failed. Please try again.');
+            }
             setSuccess('');
             console.error(err);
         }
@@ -141,9 +145,17 @@ const Register = () => {
                                     </button>
                                 </div>
                             </form>
-                            {error && <p className="error-message">{error}</p>}
-                            {success && <p className="success-message">{success}</p>}
                         </div>
+                        {error && (
+                            <div className="error-message-container">
+                                <p className="error-message">{error}</p>
+                            </div>
+                        )}
+                        {success && (
+                            <div className="success-message-container">
+                                <p className="success-message">{success}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

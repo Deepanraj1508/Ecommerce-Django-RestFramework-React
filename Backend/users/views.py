@@ -1,18 +1,21 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.exceptions import AuthenticationFailed
-from rest_framework import generics, status
-from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView # type: ignore
+from rest_framework.response import Response # type: ignore
+from rest_framework.exceptions import AuthenticationFailed # type: ignore
+from rest_framework import  status # type: ignore
+from rest_framework.permissions import AllowAny # type: ignore
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
-from .email_utils import send_registration_email,send_contact_message
+from .email_utils import send_registration_email,send_contact_message,send_otp_sms
+from django.utils.crypto import get_random_string
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from datetime import datetime, timezone, timedelta
 from django.utils import timezone
 from .serializers import *
 from .models import User
-from twilio.rest import Client
+from twilio.rest import Client # type: ignore
+from django.core.exceptions import ObjectDoesNotExist
+
 import jwt
 import logging
 
@@ -23,15 +26,59 @@ client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            name = serializer.validated_data['name']
+        
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Check if user already exists with the given email or phone number
             email = serializer.validated_data['email']
-            send_registration_email(name, email)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            phone_number = serializer.validated_data['phone_number']
+            
+            if User.objects.filter(email=email).exists():
+                return Response({'error': 'Email address is already registered.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if User.objects.filter(phone_number=phone_number).exists():
+                return Response({'error': 'Phone number is already registered.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user = serializer.save(is_active=False)  # Save the user as inactive initially
+            
+            # Generate OTP
+            otp = get_random_string(length=6, allowed_chars='0123456789')
+            user.otp = otp
+            user.save()
+            
+            # Send OTP via SMS
+            try:
+                send_otp_sms(phone_number, otp)
+            except Exception as sms_error:
+                # Handle SMS sending failure
+                user.delete()  # Rollback user creation if SMS sending fails
+                return Response({'error': 'Please enter a valid phone number to receive the one-time password (OTP) via SMS.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            return Response({'message': 'User registered. Please verify your phone number.'}, status=status.HTTP_201_CREATED)
+        
+        except Exception as registration_error:
+            # Handle registration failure
+            return Response({'error': str(registration_error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class VerifyOTPView(APIView):
+    def post(self, request):
+        otp = request.data.get('otp')
 
+        try:
+            user = User.objects.get(otp=otp)
+
+            # Update only necessary fields
+            user.is_active = True
+            user.otp = ''
+            user.save(update_fields=['is_active', 'otp'])
+            send_registration_email(user.name, user.email)
+
+            return Response({'message': 'OTP verified and user activated.'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return Response({'error': 'Invalid OTP or phone number.'}, status=status.HTTP_400_BAD_REQUEST)
 
 # Email to password change
 class PasswordResetRequestView(APIView):
@@ -125,35 +172,6 @@ class LoginView(APIView):
         response.set_cookie(key='jwt', value=token, httponly=True)
         
         return response
-
-#phone otp
-class RequestOTPView(generics.GenericAPIView):
-    serializer_class = PasswordResetSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        phone_number = serializer.validated_data['phone_number']
-        user = User.objects.get(phone_number=phone_number)
-        otp_entry, created = PhoneOTP.objects.get_or_create(user=user)
-        otp_entry.generate_otp()
-        self.send_otp_via_sms(phone_number, otp_entry.otp)
-        return Response({"detail": "OTP sent successfully"}, status=status.HTTP_200_OK)
-
-    def send_otp_via_sms(self, phone_number, otp):
-        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-        message = client.messages.create(
-            body=f'Your OTP is {otp}',
-            from_=settings.TWILIO_PHONE_NUMBER,
-            to=phone_number
-        )
-class VerifyOTPView(generics.GenericAPIView):
-    serializer_class = VerifyOTPSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response({"detail": "OTP verified successfully"}, status=status.HTTP_200_OK)
 
 # User get data
 class UserView(APIView):

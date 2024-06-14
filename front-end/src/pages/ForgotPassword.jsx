@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from "react-router-dom";
 import axios from 'axios';
 
 function ForgotPassword() {
@@ -12,10 +11,9 @@ function ForgotPassword() {
     try {
       setIsLoading(true);
       const response = await axios.post('http://localhost:8000/api/password-reset', { email });
-      setMessage(response.data.message);
+      setMessage({ type: 'success', text: response.data.message });
     } catch (error) {
-      alert('write valid email')
-      setMessage(error.response.data.error);
+      setMessage({ type: 'error', text: error.response.data.error });
     } finally {
       setIsLoading(false);
     }
@@ -23,32 +21,32 @@ function ForgotPassword() {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">Forgot Password</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            id="email"
-            className="form-control"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <br />
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <h2 className="card-title mb-4">Forgot Password</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group mb-3">
+              <label htmlFor="email" className="form-label">Email:</label>
+              <input
+                id="email"
+                className="form-control"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
+              {isLoading ? 'Sending...' : 'Send Reset Link'}
+            </button>
+          </form>
+          {message && (
+            <div className={`mt-3 alert ${message.type === 'error' ? 'alert-danger' : 'alert-success'}`} role="alert">
+              {message.text}
+            </div>
+          )}
         </div>
-        <div className="mb-3 text-end">
-          <Link to="/request-otp" className="text-decoration-none">Try Anoter way</Link>
-        </div>
-        <button type="submit" className="btn btn-primary" disabled={isLoading}>
-          {isLoading ? 'Sending...' : 'Send Reset Link'}
-        </button>
-      </form>
-      {message && (
-        <p className={message.startsWith('Error') ? 'text-danger' : 'text-success'}>
-          {message}
-        </p>
-      )}
+      </div>
     </div>
   );
 }

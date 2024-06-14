@@ -3,9 +3,25 @@ import logging
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import datetime
+from twilio.rest import Client # type: ignore
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
+
+def send_otp_sms(phone_number, otp):
+    # Twilio credentials (replace with your actual credentials)
+    account_sid = settings.TWILIO_ACCOUNT_SID
+    auth_token = settings.TWILIO_AUTH_TOKEN
+    twilio_number = settings.TWILIO_PHONE_NUMBER
+    
+    client = Client(account_sid, auth_token)
+    
+    message = client.messages.create(
+        body=f'Your OTP code is {otp}',
+        from_=twilio_number,
+        to=phone_number
+    )
 
 # Regitration Page
 def send_registration_email(name, email):

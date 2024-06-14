@@ -1,67 +1,63 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import "../static/VerifyOTP.css";
 
-function VerifyOTP() {
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp, setOtp] = useState('');
+const VerifyOTP = () => {
+  const [otp, setOTP] = useState('');
   const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleVerifyOTP = async () => {
+    setIsLoading(true); // Set loading state to true
     try {
-      setIsLoading(true);
-      const response = await axios.post('http://localhost:8000/api/verify-otp', { phone_number: phoneNumber, otp });
-      console.log(response.data); // Log the response data for debugging purposes
-      setMessage('OTP verified successfully');
-      localStorage.setItem('token', response.data.token);
-      window.location.href = '/set-new-password';
+      const response = await fetch('http://localhost:8000/api/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ otp }),
+      });
+
+      const data = await response.json();
+      setIsLoading(false); // Set loading state to false
+
+      if (response.ok) {
+        setMessage(data.message);
+        setError('');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000); // Redirect after 2 seconds
+      } else {
+        setMessage('');
+        setError(data.error || 'Failed to verify OTP.');
+      }
     } catch (error) {
-      setMessage('Error verifying OTP');
-    } finally {
-      setIsLoading(false);
+      console.error('Error verifying OTP:', error);
+      setIsLoading(false); // Set loading state to false
+      setError('Error verifying OTP. Please try again.');
     }
   };
-  
-  
 
   return (
-    <div className="container mt-5">
-      <h2 className="mb-4">Verify OTP</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="phone_number">Phone Number:</label>
-          <input
-            id="phone_number"
-            className="form-control"
-            type="text"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="otp">OTP:</label>
-          <input
-            id="otp"
-            className="form-control"
-            type="text"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary" disabled={isLoading}>
-          {isLoading ? 'Verifying...' : 'Verify OTP'}
-        </button>
-      </form>
-      {message && (
-        <p className={message.startsWith('Error') ? 'text-danger' : 'text-success'}>
-          {message}
-        </p>
-      )}
+    <div className="verify-otp-container">
+      <h2>Verify OTP</h2>
+      <div className="input-group">
+        <label htmlFor="otp">OTP:</label>
+        <input
+          type="text"
+          id="otp"
+          value={otp}
+          onChange={(e) => setOTP(e.target.value)}
+          placeholder="Enter your OTP"
+        />
+      </div>
+      <button onClick={handleVerifyOTP} disabled={isLoading}>
+        {isLoading ? 'Verifying...' : 'Verify OTP'}
+      </button>
+      {message && <p className="success-message">{message}</p>}
+      {error && <p className="error-message">{error}</p>}
     </div>
   );
-}
+};
 
 export default VerifyOTP;
