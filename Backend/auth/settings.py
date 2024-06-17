@@ -37,8 +37,16 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'users.apps.UsersConfig',
     'corsheaders',
+    'drf_yasg',
     'rest_framework',
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+   
+}
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
