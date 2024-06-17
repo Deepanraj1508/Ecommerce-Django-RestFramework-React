@@ -76,6 +76,7 @@ env/
 
 # Migrations directory
 migrations
+
 .env
 
 #config file remove

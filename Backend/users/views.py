@@ -15,13 +15,15 @@ from .serializers import *
 from .models import User
 from twilio.rest import Client # type: ignore
 from django.core.exceptions import ObjectDoesNotExist
-
 import jwt
 import logging
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
 client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+
 #Registration
 class RegisterView(APIView):
     def post(self, request):
@@ -63,6 +65,8 @@ class RegisterView(APIView):
         except Exception as registration_error:
             # Handle registration failure
             return Response({'error': str(registration_error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class VerifyOTPView(APIView):
     def post(self, request):
         otp = request.data.get('otp')
@@ -79,6 +83,7 @@ class VerifyOTPView(APIView):
             return Response({'message': 'OTP verified and user activated.'}, status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
             return Response({'error': 'Invalid OTP or phone number.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 # Email to password change
 class PasswordResetRequestView(APIView):
@@ -146,6 +151,7 @@ class SetNewPasswordView(APIView):
             logger.error(f"Invalid serializer data for user ID {uid}: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    
 #User Login 
 class LoginView(APIView):
     def post(self, request):
@@ -172,6 +178,7 @@ class LoginView(APIView):
         response.set_cookie(key='jwt', value=token, httponly=True)
         
         return response
+    
 
 # User get data
 class UserView(APIView):
@@ -196,6 +203,7 @@ class UserView(APIView):
         
         return Response(serializer.data)
 
+
 #Logout 
 class LogoutView(APIView):
      def post(self, request):
@@ -205,9 +213,9 @@ class LogoutView(APIView):
              "message" : 'Success'
          }
          return response
+     
 
 # Contanct Page
-
 class ContactView(APIView):
     def post(self, request):
         serializer = ContactSerializer(data=request.data)
