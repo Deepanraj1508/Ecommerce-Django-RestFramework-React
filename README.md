@@ -8,7 +8,7 @@ This project is a full-stack e-commerce website built using Django for the backe
 - [Running the Project](#running-the-project)
 - [Project Structure](#project-structure)
 - [Features](#features)
-- [Rest APIs](#Rest APIS)
+- [Swagger](#Swagger)
 - [License](#license)
 
 ## Prerequisites
@@ -157,7 +157,8 @@ Follow these steps to get the project up and running on your local machine.
 - **Contact Us Form**: Send messages; receive submissions via email.
 - **Product Listing and Detail Views**: Browse and view product details.
 
-## REST APIs (Swagger)
+
+## (Swagger)
 
 This project provides a set of RESTful APIs to interact with the backend services. These APIs are documented using Swagger, making it easy for developers to understand and test the endpoints.
 
