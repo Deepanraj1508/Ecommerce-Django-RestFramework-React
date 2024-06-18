@@ -168,7 +168,6 @@ After running the backend server, you can access the Swagger UI to explore and t
 
 - **Swagger UI URL:** `http://localhost:8000/swagger/`
 
-![Swagger UI Screenshot](assets/swagger_ui.png)
 
 ## License
 
