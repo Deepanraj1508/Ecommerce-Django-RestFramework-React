@@ -8,6 +8,7 @@ This project is a full-stack e-commerce website built using Django for the backe
 - [Running the Project](#running-the-project)
 - [Project Structure](#project-structure)
 - [Features](#features)
+- [Rest APIs](#Rest APIS)
 - [License](#license)
 
 ## Prerequisites
@@ -148,16 +149,29 @@ Follow these steps to get the project up and running on your local machine.
 
 ## Features
 
-- User authentication (registration, login, logout)
-- Product listing and detail views
-- Shopping cart functionality
-- Checkout process
-- Order history and management
+- **User Authentication**: Registration, Login, Logout.
+- **Phone Number OTP Verification**: Verify registration via OTP.
+- **Registration Success Message**: Confirmation email upon successful registration.
+- **JWT Login**: Secure authentication with JSON Web Tokens.
+- **Forgot Password**: Reset password via email link.
+- **Contact Us Form**: Send messages; receive submissions via email.
+- **Product Listing and Detail Views**: Browse and view product details.
+
+## REST APIs (Swagger)
+
+This project provides a set of RESTful APIs to interact with the backend services. These APIs are documented using Swagger, making it easy for developers to understand and test the endpoints.
+
+### Accessing the API Documentation
+
+After running the backend server, you can access the Swagger UI to explore and test the APIs.
+
+- **Swagger UI URL:** `http://localhost:8000/swagger/`
+
+![Swagger UI Screenshot](assets/swagger_ui.png)
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 ---
-
-Feel free to customize this README file to fit the specifics of your project. If you have any questions or need further assistance, please refer to the project's documentation or contact the repository owner.
+If you have any questions or need further assistance, please refer to the project's documentation or contact the repository owner.
