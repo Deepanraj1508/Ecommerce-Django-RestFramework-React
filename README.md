@@ -117,26 +117,33 @@ Follow these steps to get the project up and running on your local machine.
 
 ## Project Structure
 
-ecommerce-django-react:
-  backend:
-    description: Django backend directory
-    files:
-      - manage.py: Django management script
-      - settings.py: Django settings
-      - ...: Other backend files
-  frontend:
-    description: React frontend directory
-    files:
-      - public/: Public assets
-      - src/: React source files
-      - package.json: React.js dependencies and scripts
-      - ...: Other frontend files
-  env:
-    description: Python virtual environment
-  requirements.txt:
-    description: Python dependencies
-  README.md:
-    description: Project README file
+
+### Directory Descriptions:
+
+1. **`backend/`**
+   - Contains the Django backend application.
+   - `manage.py`: Script to manage Django projects.
+   - `settings.py`: Django settings file where configurations are defined.
+
+2. **`frontend/`**
+   - Houses the React frontend application.
+   - `public/`: Directory for static assets.
+   - `src/`: Contains the source code for the React components and pages.
+   - `package.json`: File that lists the Node.js dependencies and defines scripts.
+
+3. **`env/`**
+   - Python virtual environment directory (not versioned in Git).
+   - Typically created to isolate Python dependencies for the project.
+
+4. **`requirements.txt`**
+   - File listing Python dependencies required for the project.
+   - Install these dependencies using `pip install -r requirements.txt`.
+
+5. **`README.md`**
+   - This file serves as the project's documentation.
+   - Includes setup instructions, project overview, and other relevant information.
+
+---
 
 
 ## Features
