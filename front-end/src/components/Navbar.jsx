@@ -7,10 +7,10 @@ const Navbar = () => {
     const cartItems = useSelector(state => state.handleCart);
 
     return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-light py-3 sticky-top">
+        <nav style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", padding: "10px 0" }} className="navbar navbar-expand-lg ">
             <div className="container">
                 <NavLink className="navbar-brand fw-bold fs-4" to="/">
-                    <img src={logo} alt="Logo" style={{ height: '60px' }} />
+                    <img src={logo} alt="Logo" style={{ height: '40px' }} />
                 </NavLink>
                 <button 
                     className="navbar-toggler" 
@@ -27,7 +27,7 @@ const Navbar = () => {
                 <div className="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul className="navbar-nav mx-auto mb-2 mb-lg-0 text-center">
                         <li className="nav-item">
-                            <NavLink className="nav-link" exact="true"  to="/">Home</NavLink>
+                            <NavLink className="nav-link" exact="true" to="/">Home</NavLink>
                         </li>
                         <li className="nav-item">
                             <NavLink className="nav-link" to="/product">Products</NavLink>

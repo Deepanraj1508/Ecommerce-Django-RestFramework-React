@@ -1,0 +1,27 @@
+/* src/AboutPage.css */
+.about-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  
+  .about-text-left,
+  .about-text-right {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  .about-image-left,
+  .about-image-right {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .about-image-left img,
+  .about-image-right img {
+    max-width: 85%;
+    height: auto;
+    border-radius: 8px;
+  }
+  
