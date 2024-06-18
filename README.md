@@ -71,7 +71,7 @@ Follow these steps to get the project up and running on your local machine.
 
 1. **Navigate to the frontend directory:**
     ```bash
-    cd frontend
+    cd front-end
     ```
 
 2. **Install frontend dependencies:**
@@ -117,19 +117,26 @@ Follow these steps to get the project up and running on your local machine.
 
 ## Project Structure
 
-ecommerce-django-react/
-├── backend/ # Django backend directory
-│ ├── manage.py # Django management script
-│ ├── settings.py # Django settings
-│ └── ...
-├── frontend/ # React frontend directory
-│ ├── public/ # Public assets
-│ ├── src/ # React source files
-│ ├── package.json # React.js dependencies and scripts
-│ └── ...
-├── env/ # Python virtual environment
-├── requirements.txt # Python dependencies
-└── README.md # Project README file
+ecommerce-django-react:
+  backend:
+    description: Django backend directory
+    files:
+      - manage.py: Django management script
+      - settings.py: Django settings
+      - ...: Other backend files
+  frontend:
+    description: React frontend directory
+    files:
+      - public/: Public assets
+      - src/: React source files
+      - package.json: React.js dependencies and scripts
+      - ...: Other frontend files
+  env:
+    description: Python virtual environment
+  requirements.txt:
+    description: Python dependencies
+  README.md:
+    description: Project README file
 
 
 ## Features
