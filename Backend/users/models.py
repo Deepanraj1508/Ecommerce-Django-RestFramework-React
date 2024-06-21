@@ -10,7 +10,7 @@ class User(AbstractUser):
     password_reset_token_created_at = models.DateTimeField(blank=True, null=True)
     otp = models.CharField(max_length=6, blank=True, null=True)
     phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)
-    status = models.CharField(max_length=50, blank=True, null=True, default='active')  # Default value set to 'active'
+    is_active = models.BooleanField(default=True)
     timestamp = models.DateTimeField(default=timezone.now)
     updatedate = models.DateTimeField(auto_now=True)
     username = None

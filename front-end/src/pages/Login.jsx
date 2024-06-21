@@ -20,7 +20,7 @@ const Login = () => {
       // Save the JWT token in the browser cookies
       document.cookie = `jwt=${response.data.jwt}; path=/; httponly`;
       // Redirect to the home page or user dashboard
-      window.location.href = '/dashboard'; // Example redirect to dashboard
+      window.location.href = '/profile'; // Example redirect to dashboard
       console.log('Login successful:', response.data);
     } catch (error) {
       setError('Login failed: ' + (error.response?.data?.detail || 'An error occurred.'));
