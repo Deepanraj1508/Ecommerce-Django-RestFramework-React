@@ -166,10 +166,10 @@ class LoginView(APIView):
             raise AuthenticationFailed('Incorrect password')
         
         payload = {
-            'id': user.id,
-            'exp': datetime.now(timezone.utc) + timedelta(minutes=60),
-            'iat': datetime.now(timezone.utc)
-        }
+                'id': user.id,
+                'exp': timezone.now() + timedelta(minutes=60),  # expiration time in UTC
+                'iat': datetime.utcnow()  # issued at time in UTC
+            }
         token = jwt.encode(payload, 'secret', algorithm='HS256')
         
         response = Response({
